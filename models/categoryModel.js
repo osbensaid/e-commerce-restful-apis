@@ -8,7 +8,7 @@ const CategorySchema = new mongoose.Schema(
       required: [true, "Category required"],
       unique: [true, "Category must be unique"],
       minLength: [3, "Too short category name"],
-      macLength: [32, "Too long category name"],
+      maxLength: [32, "Too long category name"],
     },
     // A and B => URL/a-and-b
     slug: {

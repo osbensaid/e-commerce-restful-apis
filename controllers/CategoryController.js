@@ -1,5 +1,7 @@
 const { sulgify } = require("../Libraries/Slugify");
+const ApiError = require("../libraries/apiErrors");
 const CategoryModel = require("../models/categoryModel");
+const { isMongoId, isEmpty, isLength } = require("validator");
 
 // @desc    Get list of categories
 // @route   GET /api/v1/categories
@@ -26,7 +28,6 @@ exports.getCategories = async (req, res) => {
 exports.createCategory = async (req, res) => {
   const name = req.body.name;
   const slug = sulgify(name);
-
   try {
     await CategoryModel.create({
       name: name,
@@ -40,24 +41,25 @@ exports.createCategory = async (req, res) => {
 // @desc    Get Single Category
 // @route   GET /api/v1/categories/:id
 // @access  Public
-exports.getCategory = async (req, res) => {
+exports.getCategory = async (req, res, next) => {
   const categoryId = req.params.id;
   try {
     const category = await CategoryModel.findById(categoryId);
     if (!category) {
-      res.status(404).json("");
+      return next(new ApiError(`Category not found`, 404));
     }
     res.status(200).json({ data: category });
   } catch (error) {
-    res.status(400).send({ msg: `No category for this ${categoryId}` });
+    return next(new ApiError(`No category for this ${categoryId}`, 404));
   }
 };
 
 // @desc    Update Category
 // @route   PUT /api/v1/categories/:id
 // @access  Private
-exports.updateCategory = async (req, res) => {
+exports.updateCategory = async (req, res, next) => {
   const categoryId = req.params.id;
+
   const { name } = req.body;
   const slug = sulgify(name);
 
@@ -67,24 +69,29 @@ exports.updateCategory = async (req, res) => {
       { name, slug },
       { new: true }
     );
+
     if (!category) {
-      res.status(404).json({ msg: `No category for this ${categoryId}` });
+      return next(new ApiError(`Category not found`, 404));
     }
+
     res.status(200).json({ data: category });
   } catch (error) {
-    res.status(400).send({ msg: `No category for this ${categoryId}` });
+    return next(new ApiError(`No category for this ${categoryId}`, 404));
   }
 };
 
 // @desc    Delete Category
 // @route   DELETE /api/v1/categories/:id
 // @access  Private
-exports.deleteCategory = async (req, res) => {
+exports.deleteCategory = async (req, res, next) => {
   const categoryId = req.params.id;
-
-  const category = await CategoryModel.findByIdAndDelete(categoryId);
-  if (!category) {
-    res.status(404).json({ msg: `No category for this ${categoryId}` });
+  try {
+    const category = await CategoryModel.findByIdAndDelete(categoryId);
+    if (!category) {
+      return next(new ApiError(`Category not found`, 404));
+    }
+    res.status(200).json(category);
+  } catch (error) {
+    return next(new ApiError(`No category for this ${categoryId}`, 404));
   }
-  res.status(200).json();
 };
