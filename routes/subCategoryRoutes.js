@@ -6,6 +6,7 @@ const {
   getSubCategory,
   updateSubCategory,
   deleteSubCategory,
+  setCategoryIdToBody,
 } = require("../controllers/SubCategoryController");
 
 const {
@@ -15,11 +16,12 @@ const {
   deleteSubCategoryValidator,
 } = require("../libraries/validators/subCategoryValidator");
 
-const router = express.Router();
+// Allow us to access parameters on other routes.
+const router = express.Router({ mergeParams: true });
 
 router
   .route("/")
-  .post(createSubCategoryValidator, createSubCategory)
+  .post(setCategoryIdToBody, createSubCategoryValidator, createSubCategory)
   .get(getSubCategories);
 
 router

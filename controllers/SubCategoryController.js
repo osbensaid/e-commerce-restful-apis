@@ -1,19 +1,22 @@
 const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const SubCategoryModel = require("../models/subCategoryModel");
-const { isMongoId, isEmpty, isLength } = require("validator");
 
 // @desc    Get list of subcategories
 // @route   GET /api/v1/subcategories
+// @route   GET /api/v1/categories/categoryId/subcategories
 // @access  Public
 exports.getSubCategories = async (req, res) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
   try {
-    const categories = await SubCategoryModel.find({})
+    const { categoryId } = req.params;
+    const filterObject = categoryId ? { category: categoryId } : {};
+    const categories = await SubCategoryModel.find(filterObject)
       .skip(skip)
       .limit(limit);
+    //.populate({ path: "subcategory", select: "name -_id" });
     res
       .status(200)
       .json({ results: categories.length, page, data: categories });
@@ -24,6 +27,7 @@ exports.getSubCategories = async (req, res) => {
 
 // @desc    Create subcategory
 // @route   POST /api/v1/subcategories
+// @route   POST /api/v1/categories/categoryId/subcategories
 // @access  Private
 exports.createSubCategory = async (req, res) => {
   const { name, category } = req.body;
@@ -95,4 +99,11 @@ exports.deleteSubCategory = async (req, res, next) => {
   } catch (error) {
     return next(new ApiError(`No Subcategory for this ${categoryId}`, 404));
   }
+};
+
+// Middleware function that sets A category
+exports.setCategoryIdToBody = (req, res, next) => {
+  // Nested route
+  if (!req.body.category) req.body.category = req.params.categoryId;
+  next();
 };

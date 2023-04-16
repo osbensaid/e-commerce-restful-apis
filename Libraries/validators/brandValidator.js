@@ -1,14 +1,14 @@
 const { isMongoId, isEmpty, isLength } = require("validator");
-const ApiError = require("../apiErrors");
+const ApiError = require("../../libraries/apiErrors");
 
-const createCategoryValidator = (req, res, next) => {
+const createBrandValidator = (req, res, next) => {
   const errors = [];
   const name = req.body.name;
 
   if (isEmpty(name)) {
     errors.push({
       value: name,
-      msg: "Category name is required",
+      msg: "Brand name is required",
       param: "name",
     });
   }
@@ -37,33 +37,33 @@ const createCategoryValidator = (req, res, next) => {
   next();
 };
 
-const getCategoryValidator = (req, res, next) => {
+const getBrandValidator = (req, res, next) => {
   const categoryId = req.params.id;
   if (!isMongoId(categoryId)) {
-    return next(new ApiError(`Invalid Category ID Format`, 400));
+    return next(new ApiError(`Invalid Brand ID Format`, 400));
   }
   next();
 };
 
-const updateCategoryValidator = (req, res, next) => {
+const updateBrandValidator = (req, res, next) => {
   const categoryId = req.params.id;
   if (!isMongoId(categoryId)) {
-    return next(new ApiError(`Invalid Category ID Format`, 400));
+    return next(new ApiError(`Invalid Brand ID Format`, 400));
   }
   next();
 };
 
-const deleteCategoryValidator = (req, res, next) => {
+const deleteBrandValidator = (req, res, next) => {
   const categoryId = req.params.id;
   if (!isMongoId(categoryId)) {
-    return next(new ApiError(`Invalid Category ID Format`, 400));
+    return next(new ApiError(`Invalid Brand ID Format`, 400));
   }
   next();
 };
 
 module.exports = {
-  createCategoryValidator,
-  getCategoryValidator,
-  updateCategoryValidator,
-  deleteCategoryValidator,
+  createBrandValidator,
+  getBrandValidator,
+  updateBrandValidator,
+  deleteBrandValidator,
 };
