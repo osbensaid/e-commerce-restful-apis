@@ -1,16 +1,6 @@
 const { isMongoId, isEmpty, isLength } = require("validator");
 const ApiError = require("../../libraries/apiErrors");
 
-// {
-//   errors: [
-//     {
-//       value: "",
-//       msg: "mname is required",
-//       param: "name",
-//       location: "body",
-//     },
-//   ];
-// }
 const createCategoryValidator = (req, res, next) => {
   const errors = [];
   const name = req.body.name;

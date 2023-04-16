@@ -1,16 +1,17 @@
 const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
-const CategoryModel = require("../models/categoryModel");
+const SubCategoryModel = require("../models/subCategoryModel");
+const { isMongoId, isEmpty, isLength } = require("validator");
 
-// @desc    Get list of categories
-// @route   GET /api/v1/categories
+// @desc    Get list of subcategories
+// @route   GET /api/v1/subcategories
 // @access  Public
-exports.getCategories = async (req, res) => {
+exports.getSubCategories = async (req, res) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
   try {
-    const categories = await CategoryModel.find({})
+    const categories = await SubCategoryModel.find({})
       .skip(skip)
       .limit(limit);
     res
@@ -21,16 +22,17 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-// @desc    Create category
-// @route   POST /api/v1/categories
+// @desc    Create subcategory
+// @route   POST /api/v1/subcategories
 // @access  Private
-exports.createCategory = async (req, res) => {
-  const { name } = req.body;
+exports.createSubCategory = async (req, res) => {
+  const { name, category } = req.body;
   const slug = sulgify(name);
   try {
-    await CategoryModel.create({
-      name: name,
-      slug: slug,
+    await SubCategoryModel.create({
+      name,
+      slug,
+      category,
     }).then((doc) => res.status(201).json(doc));
   } catch (error) {
     res.status(400).json(error);
@@ -40,10 +42,10 @@ exports.createCategory = async (req, res) => {
 // @desc    Get Single Category
 // @route   GET /api/v1/categories/:id
 // @access  Public
-exports.getCategory = async (req, res, next) => {
+exports.getSubCategory = async (req, res, next) => {
   const categoryId = req.params.id;
   try {
-    const category = await CategoryModel.findById(categoryId);
+    const category = await SubCategoryModel.findById(categoryId);
     if (!category) {
       return next(new ApiError(`Category not found`, 404));
     }
@@ -56,41 +58,41 @@ exports.getCategory = async (req, res, next) => {
 // @desc    Update Category
 // @route   PUT /api/v1/categories/:id
 // @access  Private
-exports.updateCategory = async (req, res, next) => {
+exports.updateSubCategory = async (req, res, next) => {
   const categoryId = req.params.id;
 
-  const { name } = req.body;
+  const { name, category } = req.body;
   const slug = sulgify(name);
 
   try {
-    const category = await CategoryModel.findOneAndUpdate(
+    const categoryQuery = await SubCategoryModel.findOneAndUpdate(
       { _id: categoryId },
-      { name, slug },
+      { name, slug, category },
       { new: true }
     );
 
-    if (!category) {
-      return next(new ApiError(`Category not found`, 404));
+    if (!categoryQuery) {
+      return next(new ApiError(`SubCategory not found`, 404));
     }
 
-    res.status(200).json({ data: category });
+    res.status(200).json({ data: categoryQuery });
   } catch (error) {
-    return next(new ApiError(`No category for this ${categoryId}`, 404));
+    return next(new ApiError(`No Subcategory for this ${categoryId}`, 404));
   }
 };
 
-// @desc    Delete Category
-// @route   DELETE /api/v1/categories/:id
+// @desc    Delete SubCategory
+// @route   DELETE /api/v1/subcategories/:id
 // @access  Private
-exports.deleteCategory = async (req, res, next) => {
+exports.deleteSubCategory = async (req, res, next) => {
   const categoryId = req.params.id;
   try {
-    const category = await CategoryModel.findByIdAndDelete(categoryId);
+    const category = await SubCategoryModel.findByIdAndDelete(categoryId);
     if (!category) {
-      return next(new ApiError(`Category not found`, 404));
+      return next(new ApiError(`SubCategory not found`, 404));
     }
     res.status(200).json(category);
   } catch (error) {
-    return next(new ApiError(`No category for this ${categoryId}`, 404));
+    return next(new ApiError(`No Subcategory for this ${categoryId}`, 404));
   }
 };
