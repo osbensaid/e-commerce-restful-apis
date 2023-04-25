@@ -6,7 +6,7 @@ const {
   getCategory,
   updateCategory,
   deleteCategory,
-} = require("../Controllers/CategoryController");
+} = require("../controllers/CategoryController");
 const {
   createCategoryValidator,
   getCategoryValidator,
