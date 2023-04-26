@@ -2,6 +2,7 @@ const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const ProductModel = require("../models/productModel");
 const CategoryModel = require("../models/categoryModel");
+const SubCategoryModel = require("../models/subCategoryModel");
 
 // @desc    Get list of products
 // @route   GET /api/v1/products
@@ -25,34 +26,11 @@ exports.getProducts = async (req, res) => {
 // @route   POST /api/v1/products
 // @access  Private
 exports.createProduct = async (req, res, next) => {
-  //     .custom((subcategoriesIds) =>
-  //     SubCategory.find({ _id: { $exists: true, $in: subcategoriesIds } }).then(
-  //       (result) => {
-  //         if (result.length < 1 || result.length !== subcategoriesIds.length) {
-  //           return Promise.reject(new Error(`Invalid subcategories Ids`));
-  //         }
-  //       }
-  //     )
-  //   )
   //   .custom((val, { req }) =>
-  //     SubCategory.find({ category: req.body.category }).then(
-  //       (subcategories) => {
-  //         const subCategoriesIdsInDB = [];
-  //         subcategories.forEach((subCategory) => {
-  //           subCategoriesIdsInDB.push(subCategory._id.toString());
-  //         });
-  //         // check if subcategories ids in db include subcategories in req.body (true)
-  //         const checker = (target, arr) => target.every((v) => arr.includes(v));
-  //         if (!checker(val, subCategoriesIdsInDB)) {
-  //           return Promise.reject(
-  //             new Error(`subcategories not belong to category`)
-  //           );
-  //         }
-  //       }
-  //     )
+
   //   ),
 
-  const { title, category } = req.body;
+  const { title, category, subcategories } = req.body;
   req.body.slug = sulgify(title);
 
   try {
@@ -60,6 +38,35 @@ exports.createProduct = async (req, res, next) => {
     if (!categoryProduct) {
       return next(new ApiError(`Category not found`, 404));
     }
+
+    const subCategoryProduct = await SubCategoryModel.find({
+      _id: { $exists: true, $in: subcategories },
+    });
+
+    if (
+      subCategoryProduct.length < 1 ||
+      subCategoryProduct.length !== subcategories.length
+    ) {
+      return next(new ApiError(`Invalid subcategories Ids`, 404));
+    }
+
+    const subCategoriesDB = await SubCategoryModel.find({
+      category,
+    });
+
+    const subCategoriesIdsInDB = [];
+    subCategoriesDB.forEach((subCategory) => {
+      subCategoriesIdsInDB.push(subCategory._id.toString());
+    });
+    // check if subcategories ids in db include subcategories in req.body (true)
+    const checker = subcategories.every((item) =>
+      subCategoriesIdsInDB.includes(item)
+    );
+
+    if (!checker) {
+      return next(new ApiError(`subcategories not belong to category`, 404));
+    }
+
     await ProductModel.create(req.body).then((doc) =>
       res.status(201).json({ data: doc })
     );
@@ -110,7 +117,7 @@ exports.updateProduct = async (req, res, next) => {
 
     res.status(200).json({ data: product });
   } catch (error) {
-    return next(new ApiError(`No product for this ${productId}`, 404));
+    return next(new ApiError(`No product for this ${productId}`, 401));
   }
 };
 

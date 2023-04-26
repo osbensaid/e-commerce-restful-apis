@@ -18,7 +18,7 @@ const createProductValidator = (req, res, next) => {
     priceAfterDiscount,
     colors,
     category,
-    subcategory,
+    subcategories,
     brand,
     ratingsAverage,
     ratingsQuantity,
@@ -185,17 +185,27 @@ const createProductValidator = (req, res, next) => {
     });
   }
 
-  if (subcategory) {
-    if (!isMongoId(subcategory)) {
-      errors.push({
-        value: subcategory,
-        msg: "Invalid subCategory ID Format",
-        param: "subcategory",
-      });
+  function isValidArrayOfIds(value) {
+    if (!Array.isArray(value)) {
+      return false;
     }
+    for (let i = 0; i < value.length; i++) {
+      if (!isMongoId(value[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  if (subcategory) {
+  if (!isValidArrayOfIds(subcategories)) {
+    errors.push({
+      value: subcategories,
+      msg: "Invalid subcategories IDs",
+      param: "subcategories",
+    });
+  }
+
+  if (brand) {
     if (!isMongoId(brand)) {
       errors.push({
         value: brand,
