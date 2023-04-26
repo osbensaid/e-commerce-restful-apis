@@ -23,13 +23,12 @@ exports.getProducts = async (req, res) => {
 // @route   POST /api/v1/products
 // @access  Private
 exports.createProduct = async (req, res) => {
-  const { name } = req.body;
-  const slug = sulgify(name);
+  const { title } = req.body;
+  req.body.slug = sulgify(title);
   try {
-    await ProductModel.create({
-      name: name,
-      slug: slug,
-    }).then((doc) => res.status(201).json(doc));
+    await ProductModel.create(req.body).then((doc) =>
+      res.status(201).json({ data: doc })
+    );
   } catch (error) {
     res.status(400).json(error);
   }
@@ -57,13 +56,13 @@ exports.getProduct = async (req, res, next) => {
 exports.updateProduct = async (req, res, next) => {
   const productId = req.params.id;
 
-  const { name } = req.body;
-  const slug = sulgify(name);
+  const { title } = req.body;
+  req.body.slug = sulgify(title);
 
   try {
     const product = await ProductModel.findOneAndUpdate(
       { _id: productId },
-      { name, slug },
+      req.body,
       { new: true }
     );
 
