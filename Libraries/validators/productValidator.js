@@ -114,6 +114,21 @@ const createProductValidator = (req, res, next) => {
     });
   }
 
+  function isValidPriceAfterDiscount(value) {
+    if (req.body.price <= value) {
+      return false;
+    }
+    return true;
+  }
+
+  if (!isValidPriceAfterDiscount(priceAfterDiscount)) {
+    errors.push({
+      value: priceAfterDiscount,
+      msg: "priceAfterDiscount must be lower than price",
+      param: "priceAfterDiscount",
+    });
+  }
+
   function isValidArrayOfStrings(value) {
     if (!Array.isArray(value)) {
       return false;
