@@ -10,7 +10,7 @@ const SubCategoryModel = require("../models/subCategoryModel");
 exports.getProducts = async (req, res) => {
   // Filtering
   const queryString = { ...req.query };
-  ["page", "limit", "skip", "sortBy"].forEach(
+  ["page", "limit", "skip", "sortBy", "fields", "keyword"].forEach(
     (item) => delete queryString[item]
   );
 
@@ -23,9 +23,11 @@ exports.getProducts = async (req, res) => {
 
   // Pagination
   const page = req.query.page * 1 || 1;
-  const sortBy = req.query.sortBy;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
+  const sortBy = req.query.sortBy;
+  const fields = req.query.fields;
+  const keyword = req.query.keyword;
 
   // Build Query
   let mongooseQuery = ProductModel.find(filterFormatter)
@@ -34,11 +36,32 @@ exports.getProducts = async (req, res) => {
     .populate({ path: "category", select: "name -_id" })
     .sort({ price: -1 });
 
+  // Sorting
   if (sortBy) {
-    const sortOrder = sortBy.replace(",", " ");
+    const sortOrder = sortBy.split(",").join(" ");
     mongooseQuery.sort(sortOrder);
   } else {
     mongooseQuery.sort("-createdAt");
+  }
+
+  // Fields limiting
+  if (fields) {
+    const selectedFields = fields.split(",").join(" ");
+    mongooseQuery.select(selectedFields);
+  } else {
+    mongooseQuery.select("-__v");
+  }
+
+  // Search
+  if (keyword) {
+    const searchQuery = {
+      $or: [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    };
+
+    mongooseQuery.find(searchQuery);
   }
 
   try {
