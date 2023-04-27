@@ -8,14 +8,42 @@ const SubCategoryModel = require("../models/subCategoryModel");
 // @route   GET /api/v1/products
 // @access  Public
 exports.getProducts = async (req, res) => {
+  // Filtering
+  const queryString = { ...req.query };
+  ["page", "limit", "skip", "sortBy"].forEach(
+    (item) => delete queryString[item]
+  );
+
+  const filterFormatter = JSON.parse(
+    JSON.stringify(queryString).replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`
+    )
+  );
+
+  // Pagination
   const page = req.query.page * 1 || 1;
+  const sortBy = req.query.sortBy;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
+
+  // Build Query
+  let mongooseQuery = ProductModel.find(filterFormatter)
+    .skip(skip)
+    .limit(limit)
+    .populate({ path: "category", select: "name -_id" })
+    .sort({ price: -1 });
+
+  if (sortBy) {
+    const sortOrder = sortBy.replace(",", " ");
+    mongooseQuery.sort(sortOrder);
+  } else {
+    mongooseQuery.sort("-createdAt");
+  }
+
   try {
-    const products = await ProductModel.find({})
-      .skip(skip)
-      .limit(limit)
-      .populate({ path: "category", select: "name -_id" });
+    // Execute Query
+    const products = await mongooseQuery;
     res.status(200).json({ results: products.length, page, data: products });
   } catch (error) {
     res.status(400).send(error);
