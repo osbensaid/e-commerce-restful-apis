@@ -17,7 +17,7 @@ exports.getProducts = async (req, res) => {
     .paginate(documentCounts)
     .sort()
     .filter()
-    .search()
+    .search("Products")
     .limitFields();
   // .populate({
   //   path: "category",
@@ -32,7 +32,6 @@ exports.getProducts = async (req, res) => {
       .status(200)
       .json({ results: products.length, paginationResult, data: products });
   } catch (error) {
-    console.log("test");
     res.status(400).send({ error: error.message });
   }
 };

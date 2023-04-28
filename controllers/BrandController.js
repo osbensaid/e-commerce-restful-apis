@@ -1,19 +1,30 @@
 const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const BrandModel = require("../models/brandModel");
+const ApiFeatures = require("../libraries/apiFeatures");
 
 // @desc    Get list of brands
 // @route   GET /api/v1/brands
 // @access  Public
 exports.getBrands = async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
+  // Build Query
+  const mongooseQuery = BrandModel.find();
+  const queryString = req.query;
+  const documentCounts = await BrandModel.countDocuments();
+  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
+    .paginate(documentCounts)
+    .sort()
+    .filter()
+    .search()
+    .limitFields();
+
   try {
-    const brands = await BrandModel.find({})
-      .skip(skip)
-      .limit(limit);
-    res.status(200).json({ results: brands.length, page, data: brands });
+    // Execute Query
+    const { mongooseQuery, paginationResult } = apiFeatures;
+    const brands = await mongooseQuery;
+    res
+      .status(200)
+      .json({ results: brands.length, paginationResult, data: brands });
   } catch (error) {
     res.status(400).send(error);
   }

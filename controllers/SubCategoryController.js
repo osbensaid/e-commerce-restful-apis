@@ -1,25 +1,34 @@
 const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const SubCategoryModel = require("../models/subCategoryModel");
+const ApiFeatures = require("../libraries/apiFeatures");
 
 // @desc    Get list of subcategories
 // @route   GET /api/v1/subcategories
 // @route   GET /api/v1/categories/categoryId/subcategories
 // @access  Public
 exports.getSubCategories = async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
+  // Build Query
+  const { categoryId } = req.params;
+  const filterObject = categoryId ? { category: categoryId } : {};
+  const mongooseQuery = SubCategoryModel.find(filterObject);
+  const queryString = req.query;
+  const documentCounts = await SubCategoryModel.countDocuments();
+  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
+    .paginate(documentCounts)
+    .sort()
+    .filter()
+    .search()
+    .limitFields();
+
   try {
-    const { categoryId } = req.params;
-    const filterObject = categoryId ? { category: categoryId } : {};
-    const categories = await SubCategoryModel.find(filterObject)
-      .skip(skip)
-      .limit(limit);
+    // Execute Query
+    const { mongooseQuery, paginationResult } = apiFeatures;
+    const categories = await mongooseQuery;
     //.populate({ path: "subcategory", select: "name -_id" });
     res
       .status(200)
-      .json({ results: categories.length, page, data: categories });
+      .json({ results: categories.length, paginationResult, data: categories });
   } catch (error) {
     res.status(400).send(error);
   }

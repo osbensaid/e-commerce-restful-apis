@@ -1,21 +1,30 @@
 const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const CategoryModel = require("../models/categoryModel");
+const ApiFeatures = require("../libraries/apiFeatures");
 
 // @desc    Get list of categories
 // @route   GET /api/v1/categories
 // @access  Public
 exports.getCategories = async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
+  // Build Query
+  const mongooseQuery = CategoryModel.find();
+  const queryString = req.query;
+  const documentCounts = await CategoryModel.countDocuments();
+  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
+    .paginate(documentCounts)
+    .sort()
+    .filter()
+    .search()
+    .limitFields();
+
   try {
-    const categories = await CategoryModel.find({})
-      .skip(skip)
-      .limit(limit);
+    // Execute Query
+    const { mongooseQuery, paginationResult } = apiFeatures;
+    const categories = await mongooseQuery;
     res
       .status(200)
-      .json({ results: categories.length, page, data: categories });
+      .json({ results: categories.length, paginationResult, data: categories });
   } catch (error) {
     res.status(400).send(error);
   }
