@@ -2,6 +2,7 @@ const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const CategoryModel = require("../models/categoryModel");
 const ApiFeatures = require("../libraries/apiFeatures");
+const factory = require("./handlerFactory");
 
 // @desc    Get list of categories
 // @route   GET /api/v1/categories
@@ -91,15 +92,4 @@ exports.updateCategory = async (req, res, next) => {
 // @desc    Delete Category
 // @route   DELETE /api/v1/categories/:id
 // @access  Private
-exports.deleteCategory = async (req, res, next) => {
-  const categoryId = req.params.id;
-  try {
-    const category = await CategoryModel.findByIdAndDelete(categoryId);
-    if (!category) {
-      return next(new ApiError(`Category not found`, 404));
-    }
-    res.status(200).json(category);
-  } catch (error) {
-    return next(new ApiError(`No category for this ${categoryId}`, 404));
-  }
-};
+exports.deleteCategory = factory.deleteOne(CategoryModel);

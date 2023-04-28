@@ -4,6 +4,7 @@ const ApiFeatures = require("../libraries/apiFeatures");
 const ProductModel = require("../models/productModel");
 const CategoryModel = require("../models/categoryModel");
 const SubCategoryModel = require("../models/subCategoryModel");
+const factory = require("./handlerFactory");
 
 // @desc    Get list of products
 // @route   GET /api/v1/products
@@ -138,15 +139,4 @@ exports.updateProduct = async (req, res, next) => {
 // @desc    Delete Product
 // @route   DELETE /api/v1/products/:id
 // @access  Private
-exports.deleteProduct = async (req, res, next) => {
-  const productId = req.params.id;
-  try {
-    const product = await ProductModel.findByIdAndDelete(productId);
-    if (!product) {
-      return next(new ApiError(`Product not found`, 404));
-    }
-    res.status(200).json(product);
-  } catch (error) {
-    return next(new ApiError(`No product for this ${productId}`, 404));
-  }
-};
+exports.deleteProduct = factory.deleteOne(ProductModel);

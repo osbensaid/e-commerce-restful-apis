@@ -2,6 +2,7 @@ const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const BrandModel = require("../models/brandModel");
 const ApiFeatures = require("../libraries/apiFeatures");
+const factory = require("./handlerFactory");
 
 // @desc    Get list of brands
 // @route   GET /api/v1/brands
@@ -91,15 +92,4 @@ exports.updateBrand = async (req, res, next) => {
 // @desc    Delete Brand
 // @route   DELETE /api/v1/brands/:id
 // @access  Private
-exports.deleteBrand = async (req, res, next) => {
-  const brandId = req.params.id;
-  try {
-    const brand = await BrandModel.findByIdAndDelete(brandId);
-    if (!brand) {
-      return next(new ApiError(`Brand not found`, 404));
-    }
-    res.status(200).json(brand);
-  } catch (error) {
-    return next(new ApiError(`No brand for this ${brandId}`, 404));
-  }
-};
+exports.deleteBrand = factory.deleteOne(BrandModel);

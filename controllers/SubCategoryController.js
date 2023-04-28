@@ -2,6 +2,7 @@ const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
 const SubCategoryModel = require("../models/subCategoryModel");
 const ApiFeatures = require("../libraries/apiFeatures");
+const factory = require("./handlerFactory");
 
 // @desc    Get list of subcategories
 // @route   GET /api/v1/subcategories
@@ -97,18 +98,7 @@ exports.updateSubCategory = async (req, res, next) => {
 // @desc    Delete SubCategory
 // @route   DELETE /api/v1/subcategories/:id
 // @access  Private
-exports.deleteSubCategory = async (req, res, next) => {
-  const categoryId = req.params.id;
-  try {
-    const category = await SubCategoryModel.findByIdAndDelete(categoryId);
-    if (!category) {
-      return next(new ApiError(`SubCategory not found`, 404));
-    }
-    res.status(200).json(category);
-  } catch (error) {
-    return next(new ApiError(`No Subcategory for this ${categoryId}`, 404));
-  }
-};
+exports.deleteSubCategory = factory.deleteOne(SubCategoryModel);
 
 // Middleware function that sets A category
 exports.setCategoryIdToBody = (req, res, next) => {
