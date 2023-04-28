@@ -1,5 +1,6 @@
 const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
+const ApiFeatures = require("../libraries/apiFeatures");
 const ProductModel = require("../models/productModel");
 const CategoryModel = require("../models/categoryModel");
 const SubCategoryModel = require("../models/subCategoryModel");
@@ -8,68 +9,31 @@ const SubCategoryModel = require("../models/subCategoryModel");
 // @route   GET /api/v1/products
 // @access  Public
 exports.getProducts = async (req, res) => {
-  // Filtering
-  const queryString = { ...req.query };
-  ["page", "limit", "skip", "sortBy", "fields", "keyword"].forEach(
-    (item) => delete queryString[item]
-  );
-
-  const filterFormatter = JSON.parse(
-    JSON.stringify(queryString).replace(
-      /\b(gte|gt|lte|lt)\b/g,
-      (match) => `$${match}`
-    )
-  );
-
-  // Pagination
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const sortBy = req.query.sortBy;
-  const fields = req.query.fields;
-  const keyword = req.query.keyword;
-
   // Build Query
-  let mongooseQuery = ProductModel.find(filterFormatter)
-    .skip(skip)
-    .limit(limit)
-    .populate({ path: "category", select: "name -_id" })
-    .sort({ price: -1 });
-
-  // Sorting
-  if (sortBy) {
-    const sortOrder = sortBy.split(",").join(" ");
-    mongooseQuery.sort(sortOrder);
-  } else {
-    mongooseQuery.sort("-createdAt");
-  }
-
-  // Fields limiting
-  if (fields) {
-    const selectedFields = fields.split(",").join(" ");
-    mongooseQuery.select(selectedFields);
-  } else {
-    mongooseQuery.select("-__v");
-  }
-
-  // Search
-  if (keyword) {
-    const searchQuery = {
-      $or: [
-        { title: { $regex: keyword, $options: "i" } },
-        { description: { $regex: keyword, $options: "i" } },
-      ],
-    };
-
-    mongooseQuery.find(searchQuery);
-  }
+  const mongooseQuery = ProductModel.find();
+  const queryString = req.query;
+  const documentCounts = await ProductModel.countDocuments();
+  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
+    .paginate(documentCounts)
+    .sort()
+    .filter()
+    .search()
+    .limitFields();
+  // .populate({
+  //   path: "category",
+  //   select: "name -_id",
+  // });
 
   try {
     // Execute Query
+    const { mongooseQuery, paginationResult } = apiFeatures;
     const products = await mongooseQuery;
-    res.status(200).json({ results: products.length, page, data: products });
+    res
+      .status(200)
+      .json({ results: products.length, paginationResult, data: products });
   } catch (error) {
-    res.status(400).send(error);
+    console.log("test");
+    res.status(400).send({ error: error.message });
   }
 };
 
