@@ -1,35 +1,10 @@
-const { sulgify } = require("../Libraries/Slugify");
-const ApiError = require("../libraries/apiErrors");
 const CategoryModel = require("../models/categoryModel");
-const ApiFeatures = require("../libraries/apiFeatures");
 const factory = require("./handlerFactory");
 
 // @desc    Get list of categories
 // @route   GET /api/v1/categories
 // @access  Public
-exports.getCategories = async (req, res) => {
-  // Build Query
-  const mongooseQuery = CategoryModel.find();
-  const queryString = req.query;
-  const documentCounts = await CategoryModel.countDocuments();
-  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
-    .paginate(documentCounts)
-    .sort()
-    .filter()
-    .search()
-    .limitFields();
-
-  try {
-    // Execute Query
-    const { mongooseQuery, paginationResult } = apiFeatures;
-    const categories = await mongooseQuery;
-    res
-      .status(200)
-      .json({ results: categories.length, paginationResult, data: categories });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
+exports.getCategories = factory.getAll(CategoryModel);
 
 // @desc    Create category
 // @route   POST /api/v1/categories

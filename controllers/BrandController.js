@@ -1,36 +1,10 @@
-const ApiError = require("../libraries/apiErrors");
 const BrandModel = require("../models/brandModel");
-const ApiFeatures = require("../libraries/apiFeatures");
-const { sulgify } = require("../Libraries/Slugify");
 const factory = require("./handlerFactory");
 
 // @desc    Get list of brands
 // @route   GET /api/v1/brands
 // @access  Public
-exports.getBrands = async (req, res) => {
-  // Build Query
-  const mongooseQuery = BrandModel.find();
-  const queryString = req.query;
-  const documentCounts = await BrandModel.countDocuments();
-  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
-    .paginate(documentCounts)
-    .sort()
-    .filter()
-    .search()
-    .limitFields();
-
-  try {
-    // Execute Query
-    const { mongooseQuery, paginationResult } = apiFeatures;
-    const brands = await mongooseQuery;
-    res
-      .status(200)
-      .json({ results: brands.length, paginationResult, data: brands });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
-
+exports.getBrands = factory.getAll(BrandModel);
 // @desc    Create brand
 // @route   POST /api/v1/brands
 // @access  Private

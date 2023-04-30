@@ -53,3 +53,36 @@ exports.getOne = (Model) => async (req, res, next) => {
     return next(new ApiError(`No document for this id ${id}`, 404));
   }
 };
+
+exports.getAll = (Model) => async (req, res) => {
+  const { categoryId } = req.params;
+  const filterObject = categoryId ? { category: categoryId } : {};
+  const modelName = Model.modelName === "Product" ? "Products" : "";
+
+  // Build Query
+  const mongooseQuery = Model.find(filterObject);
+  const queryString = req.query;
+  const documentCounts = await Model.countDocuments();
+  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
+    .paginate(documentCounts)
+    .sort()
+    .filter()
+    .search(modelName)
+    .limitFields();
+
+  try {
+    // Execute Query
+    const { mongooseQuery, paginationResult } = apiFeatures;
+    const documents = await mongooseQuery;
+    //.populate({ path: "subcategory", select: "name -_id" });
+    // .populate({
+    //   path: "category",
+    //   select: "name -_id",
+    // });
+    res
+      .status(200)
+      .json({ results: documents.length, paginationResult, data: documents });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};

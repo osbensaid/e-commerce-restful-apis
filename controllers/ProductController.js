@@ -9,33 +9,7 @@ const factory = require("./handlerFactory");
 // @desc    Get list of products
 // @route   GET /api/v1/products
 // @access  Public
-exports.getProducts = async (req, res) => {
-  // Build Query
-  const mongooseQuery = ProductModel.find();
-  const queryString = req.query;
-  const documentCounts = await ProductModel.countDocuments();
-  const apiFeatures = new ApiFeatures(mongooseQuery, queryString)
-    .paginate(documentCounts)
-    .sort()
-    .filter()
-    .search("Products")
-    .limitFields();
-  // .populate({
-  //   path: "category",
-  //   select: "name -_id",
-  // });
-
-  try {
-    // Execute Query
-    const { mongooseQuery, paginationResult } = apiFeatures;
-    const products = await mongooseQuery;
-    res
-      .status(200)
-      .json({ results: products.length, paginationResult, data: products });
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-};
+exports.getProducts = factory.getAll(ProductModel);
 
 // @desc    Create product
 // @route   POST /api/v1/products
