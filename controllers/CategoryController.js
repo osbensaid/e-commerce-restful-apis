@@ -66,28 +66,7 @@ exports.getCategory = async (req, res, next) => {
 // @desc    Update Category
 // @route   PUT /api/v1/categories/:id
 // @access  Private
-exports.updateCategory = async (req, res, next) => {
-  const categoryId = req.params.id;
-
-  const { name } = req.body;
-  const slug = sulgify(name);
-
-  try {
-    const category = await CategoryModel.findOneAndUpdate(
-      { _id: categoryId },
-      { name, slug },
-      { new: true }
-    );
-
-    if (!category) {
-      return next(new ApiError(`Category not found`, 404));
-    }
-
-    res.status(200).json({ data: category });
-  } catch (error) {
-    return next(new ApiError(`No category for this ${categoryId}`, 404));
-  }
-};
+exports.updateCategory = factory.updateOne(CategoryModel);
 
 // @desc    Delete Category
 // @route   DELETE /api/v1/categories/:id

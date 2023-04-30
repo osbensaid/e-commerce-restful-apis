@@ -6,6 +6,7 @@ const {
   isDecimal,
 } = require("validator");
 const ApiError = require("../apiErrors");
+const { sulgify } = require("../../Libraries/Slugify");
 
 const createProductValidator = (req, res, next) => {
   const errors = [];
@@ -268,6 +269,7 @@ const updateProductValidator = (req, res, next) => {
   if (!isMongoId(productId)) {
     return next(new ApiError(`Invalid Product ID Format`, 400));
   }
+  req.body.slug = sulgify(req.body.title);
   next();
 };
 

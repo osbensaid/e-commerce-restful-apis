@@ -1,4 +1,5 @@
 const { isMongoId, isEmpty, isLength } = require("validator");
+const { sulgify } = require("../../Libraries/Slugify");
 const ApiError = require("../../libraries/apiErrors");
 
 const createBrandValidator = (req, res, next) => {
@@ -46,10 +47,11 @@ const getBrandValidator = (req, res, next) => {
 };
 
 const updateBrandValidator = (req, res, next) => {
-  const categoryId = req.params.id;
-  if (!isMongoId(categoryId)) {
+  const { id } = req.params;
+  if (!isMongoId(id)) {
     return next(new ApiError(`Invalid Brand ID Format`, 400));
   }
+  req.body.slug = sulgify(req.body.name);
   next();
 };
 
@@ -58,6 +60,7 @@ const deleteBrandValidator = (req, res, next) => {
   if (!isMongoId(categoryId)) {
     return next(new ApiError(`Invalid Brand ID Format`, 400));
   }
+
   next();
 };
 

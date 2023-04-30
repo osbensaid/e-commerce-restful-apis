@@ -112,29 +112,7 @@ exports.getProduct = async (req, res, next) => {
 // @desc    Update Product
 // @route   PUT /api/v1/products/:id
 // @access  Private
-exports.updateProduct = async (req, res, next) => {
-  const productId = req.params.id;
-
-  if (req.body.title) {
-    req.body.slug = sulgify(title);
-  }
-
-  try {
-    const product = await ProductModel.findOneAndUpdate(
-      { _id: productId },
-      req.body,
-      { new: true }
-    );
-
-    if (!product) {
-      return next(new ApiError(`Product not found`, 404));
-    }
-
-    res.status(200).json({ data: product });
-  } catch (error) {
-    return next(new ApiError(`No product for this ${productId}`, 401));
-  }
-};
+exports.updateProduct = factory.updateOne(ProductModel);
 
 // @desc    Delete Product
 // @route   DELETE /api/v1/products/:id

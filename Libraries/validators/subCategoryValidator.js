@@ -1,4 +1,5 @@
 const { isMongoId, isEmpty, isLength } = require("validator");
+const { sulgify } = require("../../Libraries/Slugify");
 const ApiError = require("../apiErrors");
 
 const createSubCategoryValidator = (req, res, next) => {
@@ -62,10 +63,11 @@ const getSubCategoryValidator = (req, res, next) => {
 };
 
 const updateSubCategoryValidator = (req, res, next) => {
-  const categoryId = req.params.id;
-  if (!isMongoId(categoryId)) {
+  const { id } = req.params;
+  if (!isMongoId(id)) {
     return next(new ApiError(`Invalid SubCategory ID Format`, 400));
   }
+  req.body.slug = sulgify(req.body.name);
   next();
 };
 
