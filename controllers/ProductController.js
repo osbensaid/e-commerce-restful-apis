@@ -41,12 +41,7 @@ exports.getProducts = async (req, res) => {
 // @route   POST /api/v1/products
 // @access  Private
 exports.createProduct = async (req, res, next) => {
-  //   .custom((val, { req }) =>
-
-  //   ),
-
-  const { title, category, subcategories } = req.body;
-  req.body.slug = sulgify(title);
+  const { category, subcategories } = req.body;
 
   try {
     const categoryProduct = await CategoryModel.findById(category);

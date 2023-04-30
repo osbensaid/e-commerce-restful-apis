@@ -34,18 +34,7 @@ exports.getCategories = async (req, res) => {
 // @desc    Create category
 // @route   POST /api/v1/categories
 // @access  Private
-exports.createCategory = async (req, res) => {
-  const { name } = req.body;
-  const slug = sulgify(name);
-  try {
-    await CategoryModel.create({
-      name: name,
-      slug: slug,
-    }).then((doc) => res.status(201).json(doc));
-  } catch (error) {
-    res.status(400).json(error);
-  }
-};
+exports.createCategory = factory.createOne(CategoryModel);
 
 // @desc    Get Single Category
 // @route   GET /api/v1/categories/:id

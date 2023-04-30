@@ -4,7 +4,7 @@ const ApiError = require("../apiErrors");
 
 const createCategoryValidator = (req, res, next) => {
   const errors = [];
-  const name = req.body.name;
+  const { name } = req.body;
 
   if (isEmpty(name)) {
     errors.push({
@@ -34,6 +34,8 @@ const createCategoryValidator = (req, res, next) => {
   if (errors.length > 0) {
     return res.status(400).json(errors);
   }
+
+  req.body.slug = sulgify(name);
 
   next();
 };

@@ -51,6 +51,8 @@ const createSubCategoryValidator = (req, res, next) => {
     return res.status(400).json(errors);
   }
 
+  req.body.slug = sulgify(name);
+
   next();
 };
 

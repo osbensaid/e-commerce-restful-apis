@@ -4,7 +4,7 @@ const ApiError = require("../../libraries/apiErrors");
 
 const createBrandValidator = (req, res, next) => {
   const errors = [];
-  const name = req.body.name;
+  const { name } = req.body;
 
   if (isEmpty(name)) {
     errors.push({
@@ -35,6 +35,7 @@ const createBrandValidator = (req, res, next) => {
     return res.status(400).json(errors);
   }
 
+  req.body.slug = sulgify(req.body.name);
   next();
 };
 

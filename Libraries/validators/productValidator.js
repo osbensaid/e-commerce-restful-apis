@@ -253,6 +253,7 @@ const createProductValidator = (req, res, next) => {
     return res.status(400).json(errors);
   }
 
+  req.body.slug = sulgify(title);
   next();
 };
 

@@ -39,19 +39,7 @@ exports.getSubCategories = async (req, res) => {
 // @route   POST /api/v1/subcategories
 // @route   POST /api/v1/categories/categoryId/subcategories
 // @access  Private
-exports.createSubCategory = async (req, res) => {
-  const { name, category } = req.body;
-  const slug = sulgify(name);
-  try {
-    await SubCategoryModel.create({
-      name,
-      slug,
-      category,
-    }).then((doc) => res.status(201).json(doc));
-  } catch (error) {
-    res.status(400).json(error);
-  }
-};
+exports.createSubCategory = factory.createOne(SubCategoryModel);
 
 // @desc    Get Single Category
 // @route   GET /api/v1/categories/:id

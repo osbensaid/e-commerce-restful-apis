@@ -28,3 +28,11 @@ exports.updateOne = (Model) => async (req, res, next) => {
     return next(new ApiError(`No document for this id ${id}`, 404));
   }
 };
+
+exports.createOne = (Model) => async (req, res) => {
+  try {
+    await Model.create(req.body).then((doc) => res.status(201).json(doc));
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};

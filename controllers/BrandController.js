@@ -34,18 +34,7 @@ exports.getBrands = async (req, res) => {
 // @desc    Create brand
 // @route   POST /api/v1/brands
 // @access  Private
-exports.createBrand = async (req, res) => {
-  const { name } = req.body;
-  const slug = sulgify(name);
-  try {
-    await BrandModel.create({
-      name: name,
-      slug: slug,
-    }).then((doc) => res.status(201).json(doc));
-  } catch (error) {
-    res.status(400).json(error);
-  }
-};
+exports.createBrand = factory.createOne(BrandModel);
 
 // @desc    Get Single Brand
 // @route   GET /api/v1/brands/:id
