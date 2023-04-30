@@ -29,10 +29,6 @@ exports.updateOne = (Model) => async (req, res, next) => {
   }
 };
 
-// .populate({
-//     path: "category",
-//     select: "name -_id",
-//   })
 exports.createOne = (Model) => async (req, res) => {
   try {
     await Model.create(req.body).then((doc) => res.status(201).json(doc));
@@ -74,11 +70,6 @@ exports.getAll = (Model) => async (req, res) => {
     // Execute Query
     const { mongooseQuery, paginationResult } = apiFeatures;
     const documents = await mongooseQuery;
-    //.populate({ path: "subcategory", select: "name -_id" });
-    // .populate({
-    //   path: "category",
-    //   select: "name -_id",
-    // });
     res
       .status(200)
       .json({ results: documents.length, paginationResult, data: documents });

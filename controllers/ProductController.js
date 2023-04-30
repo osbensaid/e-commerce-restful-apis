@@ -1,6 +1,4 @@
-const { sulgify } = require("../Libraries/Slugify");
 const ApiError = require("../libraries/apiErrors");
-const ApiFeatures = require("../libraries/apiFeatures");
 const ProductModel = require("../models/productModel");
 const CategoryModel = require("../models/categoryModel");
 const SubCategoryModel = require("../models/subCategoryModel");
