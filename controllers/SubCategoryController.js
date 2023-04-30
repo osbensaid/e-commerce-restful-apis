@@ -44,18 +44,7 @@ exports.createSubCategory = factory.createOne(SubCategoryModel);
 // @desc    Get Single Category
 // @route   GET /api/v1/categories/:id
 // @access  Public
-exports.getSubCategory = async (req, res, next) => {
-  const categoryId = req.params.id;
-  try {
-    const category = await SubCategoryModel.findById(categoryId);
-    if (!category) {
-      return next(new ApiError(`Category not found`, 404));
-    }
-    res.status(200).json({ data: category });
-  } catch (error) {
-    return next(new ApiError(`No category for this ${categoryId}`, 404));
-  }
-};
+exports.getSubCategory = factory.getOne(SubCategoryModel);
 
 // @desc    Update Category
 // @route   PUT /api/v1/categories/:id

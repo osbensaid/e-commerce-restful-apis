@@ -29,10 +29,27 @@ exports.updateOne = (Model) => async (req, res, next) => {
   }
 };
 
+// .populate({
+//     path: "category",
+//     select: "name -_id",
+//   })
 exports.createOne = (Model) => async (req, res) => {
   try {
     await Model.create(req.body).then((doc) => res.status(201).json(doc));
   } catch (error) {
     res.status(400).json(error);
+  }
+};
+
+exports.getOne = (Model) => async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const document = await Model.findById(id);
+    if (!document) {
+      return next(new ApiError(`No document for this id ${id}`, 404));
+    }
+    res.status(200).json({ data: document });
+  } catch (error) {
+    return next(new ApiError(`No document for this id ${id}`, 404));
   }
 };

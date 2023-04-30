@@ -88,21 +88,7 @@ exports.createProduct = async (req, res, next) => {
 // @desc    Get Single Product
 // @route   GET /api/v1/products/:id
 // @access  Public
-exports.getProduct = async (req, res, next) => {
-  const productId = req.params.id;
-  try {
-    const product = await ProductModel.findById(productId).populate({
-      path: "category",
-      select: "name -_id",
-    });
-    if (!product) {
-      return next(new ApiError(`Product not found`, 404));
-    }
-    res.status(200).json({ data: product });
-  } catch (error) {
-    return next(new ApiError(`No product for this ${productId}`, 404));
-  }
-};
+exports.getProduct = factory.getOne(ProductModel);
 
 // @desc    Update Product
 // @route   PUT /api/v1/products/:id

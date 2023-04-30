@@ -39,18 +39,7 @@ exports.createBrand = factory.createOne(BrandModel);
 // @desc    Get Single Brand
 // @route   GET /api/v1/brands/:id
 // @access  Public
-exports.getBrand = async (req, res, next) => {
-  const brandId = req.params.id;
-  try {
-    const brand = await BrandModel.findById(brandId);
-    if (!brand) {
-      return next(new ApiError(`Brand not found`, 404));
-    }
-    res.status(200).json({ data: brand });
-  } catch (error) {
-    return next(new ApiError(`No brand for this ${brandId}`, 404));
-  }
-};
+exports.getBrand = factory.getOne(BrandModel);
 
 // @desc    Update Brand
 // @route   PUT /api/v1/brands/:id
